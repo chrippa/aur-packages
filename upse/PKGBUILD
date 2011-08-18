@@ -1,8 +1,13 @@
 # Maintainer: Christopher Rosell <chrippa@tanuki.se>
+
+# aur split package hacks
+pkgname='upse'
+true && pkgname=(libupse upse123)
+
 pkgbase='upse'
-pkgname=(libupse upse123)
 pkgver=1.9.1
 pkgrel=1
+pkgdesc='UPSE is an advanced playstation sound emulator which concentrates on sound correctness'
 arch=('i686' 'x86_64')
 url='http://nenolod.net/projects/upse/'
 license=('GPL')
@@ -25,7 +30,6 @@ build() {
 }
 
 package_libupse() {
-  pkgdesc='UPSE is an advanced playstation sound emulator which concentrates on sound correctness (library)'
   provides=(libupse)
   depends=(zlib)
 
@@ -34,7 +38,6 @@ package_libupse() {
 }
 
 package_upse123() {
-  pkgdesc='UPSE is an advanced playstation sound emulator which concentrates on sound correctness (player)'
   depends=(libupse libao)
   provides=(upse123)
 
