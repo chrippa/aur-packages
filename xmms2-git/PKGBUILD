@@ -5,7 +5,7 @@
 # Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
 
 pkgname=xmms2-git
-pkgver=20111020
+pkgver=20111021
 pkgrel=1
 pkgdesc="complete rewrite of the popular music player"
 arch=('i686' 'x86_64')
@@ -16,7 +16,7 @@ depends=('sqlite3' 'glib2' 'readline')
 makedepends=('alsa-lib' 'avahi' 'boost' 'curl' 'faad2'
 	'ffmpeg' 'fftw' 'flac' 'glib2' 'jack' 'libao' 'libcdio'
 	'libdiscid' 'libgme' 'libmms' 'libmodplug' 'libmpcdec'
-	'libofa' 'libsamplerate' 'libshout' 'libvisual' 'libvorbis'
+	'libofa' 'libsamplerate' 'libshout' 'libvorbis'
 	'libxml2' 'mpg123' 'perl' 'pulseaudio' 'pyrex' 'python'
 	'ruby' 'sidplay2-libs' 'smbclient' 'speex' 'wavpack')
 optdepends=('alsa-lib: ALSA audio output'
