@@ -4,40 +4,33 @@
 
 realname=libflashsupport
 bename=pulse
+_gitname="${realname}-${bename}"
 pkgname=lib32-${realname}-${bename}
-pkgver=20110620
+pkgver=r10.a9bc3ca
 pkgrel=1
 pkgdesc="Adds PulseAudio support to the Flash browser plugin"
-url="http://git.0pointer.de/?p=${realname}.git;a=summary"
+url="http://git.0pointer.net/${realname}.git/"
 license=("GPL")
 arch=("x86_64")
 depends=("lib32-libpulse" "flashplugin")
 makedepends=("automake" "autoconf" "git" "pkg-config")
-source=()
-sha1sums=()
-_gitroot="http://git.0pointer.de/repos/${realname}.git"
-_gitname="${realname}-${bename}"
+source=("${_gitname}::git+http://git.0pointer.net/${realname}.git")
+sha256sums=(SKIP)
 
-build() {
-	cd "${srcdir}"
-
-	# Repository
-	msg "Connecting to GIT server...."
-	if [ -d ${_gitname} ] ; then
-		cd ${_gitname} && git pull origin
-		msg "The local files are updated."
-	else
-		git clone ${_gitroot} ${_gitname}
-	fi
-	msg "GIT checkout done or server timeout"
-	msg "Starting make..."
-
-	rm -rf ""${srcdir}"/${_gitname}-build"
-	git clone -l ""${srcdir}"/${_gitname}" ""${srcdir}"/${_gitname}-build"
-	cd ""${srcdir}"/${_gitname}-build"
+prepare() {
+	cd "${srcdir}/${_gitname}"
 
 	# Patch
-	sed -i 's|#define V4L1|//#define V4L1|g' ""${srcdir}"/${_gitname}-build/flashsupport.c"
+	sed -i 's|#define V4L1|//#define V4L1|g' 'flashsupport.c'
+}
+
+pkgver() {
+	cd "${srcdir}"/${_gitname}/
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+	cd "${srcdir}/${_gitname}"
 
 	# Config
 	[ ${CARCH} = 'x86_64' ] && CXXFLAGS="$CXXFLAGS -fPIC"
@@ -51,9 +44,8 @@ build() {
 }
 
 package() {
-	cd ""${srcdir}"/${_gitname}-build"
+	cd "${srcdir}/${_gitname}"
 
 	make DESTDIR="${pkgdir}" install
 	rm "${pkgdir}"/usr/lib32/${realname}.la
-	rm -rf ""${srcdir}"/${_gitname}-build"
 }
