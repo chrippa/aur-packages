@@ -1,59 +1,63 @@
-# Maintainer: Christopher Rosell <chrippa@tanuki.se>
+# Maintainer: Yaohan Chen <yaohan.chen@gmail.com>
+# Contributor: Christopher Rosell <chrippa@tanuki.se>
 # Contributor: Xavion <Xavion (dot) 0 (at) Gmail (dot) com>
 # Contributor: Mikael Eriksson <mikael_miffe_eriksson@yahoo.se>
 
 realname=libflashsupport
 bename=pulse
-pkgname=lib32-${realname}-${bename}
-pkgver=20110620
+_gitname="${realname}-${bename}"
+pkgname="${realname}-${bename}-git"
+pkgver=r10.a9bc3ca
 pkgrel=1
 pkgdesc="Adds PulseAudio support to the Flash browser plugin"
-url="http://git.0pointer.de/?p=${realname}.git;a=summary"
+url="http://git.0pointer.net/${realname}.git/"
 license=("GPL")
-arch=("x86_64")
-depends=("lib32-libpulse" "flashplugin")
+arch=("x86_64" "i686")
+depends=("flashplugin")
+depends_x86_64=("lib32-libpulse")
+depends_i686=("libpulse")
 makedepends=("automake" "autoconf" "git" "pkg-config")
-source=()
-sha1sums=()
-_gitroot="http://git.0pointer.de/repos/${realname}.git"
-_gitname="${realname}-${bename}"
+source=("${_gitname}::git+http://git.0pointer.net/${realname}.git")
+sha256sums=(SKIP)
 
-build() {
-	cd "${srcdir}"
-
-	# Repository
-	msg "Connecting to GIT server...."
-	if [ -d ${_gitname} ] ; then
-		cd ${_gitname} && git pull origin
-		msg "The local files are updated."
-	else
-		git clone ${_gitroot} ${_gitname}
-	fi
-	msg "GIT checkout done or server timeout"
-	msg "Starting make..."
-
-	rm -rf ""${srcdir}"/${_gitname}-build"
-	git clone -l ""${srcdir}"/${_gitname}" ""${srcdir}"/${_gitname}-build"
-	cd ""${srcdir}"/${_gitname}-build"
+prepare() {
+	cd "${srcdir}/${_gitname}"
 
 	# Patch
-	sed -i 's|#define V4L1|//#define V4L1|g' ""${srcdir}"/${_gitname}-build/flashsupport.c"
+	sed -i 's|#define V4L1|//#define V4L1|g' 'flashsupport.c'
+}
+
+pkgver() {
+	cd "${srcdir}"/${_gitname}/
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+case "$CARCH" in
+	x86_64)
+		libdir='/usr/lib32'
+		;;
+	i686)
+		libdir='/usr/lib'
+		;;
+esac
+
+build() {
+	cd "${srcdir}/${_gitname}"
 
 	# Config
 	[ ${CARCH} = 'x86_64' ] && CXXFLAGS="$CXXFLAGS -fPIC"
 
 	export CC="gcc -m32"
-	export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
+	export PKG_CONFIG_PATH="${libdir}/pkgconfig"
 
 	NOCONFIGURE=1 ./bootstrap.sh
-	./configure --prefix=/usr --libdir=/usr/lib32 --libexecdir=/usr/lib32
+	./configure --prefix=/usr --libdir="${libdir}" --libexecdir="${libdir}"
 	make
 }
 
 package() {
-	cd ""${srcdir}"/${_gitname}-build"
+	cd "${srcdir}/${_gitname}"
 
 	make DESTDIR="${pkgdir}" install
-	rm "${pkgdir}"/usr/lib32/${realname}.la
-	rm -rf ""${srcdir}"/${_gitname}-build"
+	rm "${pkgdir}/${libdir}/${realname}.la"
 }
